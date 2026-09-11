@@ -56,3 +56,19 @@ Sources differ on compulsory captures. This implementation explicitly uses compu
 Version history records actual development steps performed on this project. Author identity used for automated local commits is `Codex <codex@localhost>`; it is not a claim that either student's identity was supplied. Student names and registration numbers are left as placeholders in the lab report.
 
 Build outputs, local saves, and document QA files are excluded from Git. Executables belong in release assets; source code and documentation belong in the repository.
+
+## Keyboard controls
+
+Click the game window to focus it before using shortcuts.
+
+- N: Start a new game.
+- S: Save the current match.
+- L: Load a saved match.
+- M: Change game mode and start a new match.
+- T: Toggle move hints.
+- H: Open or close the instructions.
+- Escape: Close the instructions.
+
+While instructions are open, only H and Escape are active.
+Holding a key does not repeatedly trigger its shortcut.
+N and M reset the current match; save first if you want to keep it.
