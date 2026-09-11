@@ -1,0 +1,10 @@
+build/
+qa/
+*.obj
+*.pdb
+*.ilk
+*.exe
+preview.png
+rules-preview.png
+test-results.txt
+submission/
