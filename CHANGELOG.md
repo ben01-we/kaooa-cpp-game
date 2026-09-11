@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0
+
+- Select Easy (random legal moves) or Strategic (five-ply minimax) computer play.
+- Switch difficulty during a match without losing progress.
+- Show release version in the game footer.
+
 ## v1.1.0
 
 - Save and resume a complete match, including mode and undo history.

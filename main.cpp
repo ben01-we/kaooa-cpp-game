@@ -17,6 +17,8 @@ Game game;
 State state;
 std::vector<State> history;
 int selected=-1,mode=0,hover=-1; // 0 human crows, 1 human vulture, 2 local players
+bool strategic=true;
+std::mt19937 aiRandom(std::random_device{}());
 bool rules=false,hints=true,thinking=false;
 HWND window=nullptr;
 float scale=1,ox=0,oy=0;
@@ -55,7 +57,7 @@ void draw(Graphics& g) {
     text(g,L"KAOOA",37,49,510,67,49,cream,true,L"Georgia");
     text(g,L"V U L T U R E   &   C R O W S",41,113,590,28,12,muted);
     text(g,L"A traditional Indian game of pursuit and patience.",40,684,670,26,12,muted);
-    text(g,L"C++  /  NATIVE DESKTOP",803,686,260,22,10,gold,true);
+    text(g,L"C++  /  DESKTOP  /  v1.2.0",790,686,275,22,10,gold,true);
     // Restrained concentric engraving and a five-point star on a dark stone board.
     Pen ring(Color(255,36,54,54),1);
     for(int r=220;r<=286;r+=22) g.DrawEllipse(&ring,362.f-r,384.f-r,r*2.f,r*2.f);
@@ -80,7 +82,8 @@ void draw(Graphics& g) {
     text(g,L"THE TABLE",730,51,285,25,11,gold,true);
     const wchar_t* modes[]={L"You: crows  /  Computer: vulture",L"You: vulture  /  Computer: crows",L"Two players  /  Pass & play"};
     text(g,modes[mode],730,78,290,25,13,cream);
-    button(g,RectF(730,112,286,39),L"Change mode",1);
+    button(g,RectF(730,112,136,39),L"Change mode",1);
+    button(g,RectF(878,112,138,39),strategic?L"AI: strategic":L"AI: easy",7);
     std::wstring title=state.winner?(state.winner==3?L"A balanced contest":state.winner==1?L"The crows win!":L"The vulture wins!"):(aiTurn()?L"Computer is thinking...":state.turn==1?L"The crows' turn":L"The vulture's turn");
     text(g,title,730,176,293,38,23,cream,true);
     std::wstring phase=state.winner?L"Start a new game or undo a move.":state.turn==1?(state.placed<7?L"PLACE  /  Build your blockade":L"MOVE  /  Close the escape routes"):L"HUNT  /  Capture four crows";
@@ -150,6 +153,7 @@ void click(float x,float y){
         if(id==4)hints=!hints;
         if(id==5)rules=true;
         if(id==6){rules=false;schedule();}
+        if(id==7){strategic=!strategic;note=strategic?L"Strategic AI plans five moves ahead.":L"Easy AI chooses a random legal move.";}
         if(id==8)saveMatch();
         if(id==9)loadMatch();
         refresh();return;
@@ -170,7 +174,7 @@ LRESULT CALLBACK proc(HWND h,UINT msg,WPARAM wp,LPARAM lp){
     case WM_PAINT:{PAINTSTRUCT ps;HDC dc=BeginPaint(h,&ps);RECT r;GetClientRect(h,&r);int w=r.right,ht=r.bottom;if(w>0 && ht>0){Bitmap bmp(w,ht,PixelFormat32bppARGB);Graphics g(&bmp);g.Clear(bg);scale=std::min(w/1080.f,ht/720.f);ox=(w-1080*scale)/2;oy=(ht-720*scale)/2;g.TranslateTransform(ox,oy);g.ScaleTransform(scale,scale);draw(g);Graphics out(dc);out.DrawImage(&bmp,0,0);}EndPaint(h,&ps);return 0;}
     case WM_LBUTTONDOWN:click((GET_X_LPARAM(lp)-ox)/scale,(GET_Y_LPARAM(lp)-oy)/scale);return 0;
     case WM_MOUSEMOVE:{float x=(GET_X_LPARAM(lp)-ox)/scale,y=(GET_Y_LPARAM(lp)-oy)/scale;int next=-1;for(auto b:buttons)if(b.rect.Contains(x,y))next=b.id;if(hover!=next){hover=next;refresh();}SetCursor(LoadCursor(nullptr,next>=0?IDC_HAND:IDC_ARROW));return 0;}
-    case WM_TIMER:if(wp==1){KillTimer(h,1);if(rules)return 0;if(aiTurn()){auto m=game.choose(state);play(m);}thinking=false;}return 0;
+    case WM_TIMER:if(wp==1){KillTimer(h,1);if(rules)return 0;if(aiTurn()){auto ms=game.moves(state);auto m=strategic?game.choose(state):ms[aiRandom()%ms.size()];play(m);}thinking=false;}return 0;
     case WM_KEYDOWN:if(wp==VK_ESCAPE){rules=false;schedule();refresh();}if(wp=='H'){rules=!rules;if(!rules)schedule();refresh();}return 0;
     case WM_DESTROY:KillTimer(h,1);PostQuitMessage(0);return 0;
     }return DefWindowProc(h,msg,wp,lp);
