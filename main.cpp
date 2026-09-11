@@ -57,7 +57,7 @@ void draw(Graphics& g) {
     text(g,L"KAOOA",37,49,510,67,49,cream,true,L"Georgia");
     text(g,L"V U L T U R E   &   C R O W S",41,113,590,28,12,muted);
     text(g,L"A traditional Indian game of pursuit and patience.",40,684,670,26,12,muted);
-    text(g,L"C++  /  DESKTOP  /  v1.2.1",790,686,275,22,10,gold,true);
+    text(g,L"C++  /  DESKTOP  /  v1.3.0",790,686,275,22,10,gold,true);
     // Restrained concentric engraving and a five-point star on a dark stone board.
     Pen ring(Color(255,36,54,54),1);
     for(int r=220;r<=286;r+=22) g.DrawEllipse(&ring,362.f-r,384.f-r,r*2.f,r*2.f);

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.0 (release-2)
+
+- Keyboard shortcuts in the desktop game: N new game, S save, L load, M change mode, T hints; held keys do not repeat and only H and Escape work while the rules are open.
+- Configurable computer search depth in `game.h` (default unchanged), with tests for legal moves and finished games.
+- Graphical tests for every keyboard shortcut.
+- Web edition in `web/`: JavaScript rules engine matching `game.h`, 14 automated rules tests, SVG board with mouse, touch and keyboard play, all three modes, easy and strategic computer, undo, hints, rules screen, browser saves and a phone layout.
+- README instructions for running and testing the web edition, and a comparison of both editions.
+
 ## v1.2.1
 
 - Fix live-window rendering on Windows displays with scaling above 100 percent.
