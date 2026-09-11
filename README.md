@@ -4,6 +4,8 @@ A native Windows C++17 adaptation of the traditional Indian hunt game Kaooa, bui
 
 ## Run
 
+Latest release: **v1.2.0**. Repository: [ben01-we/kaooa-cpp-game](https://github.com/ben01-we/kaooa-cpp-game). [Download the latest executable](https://github.com/ben01-we/kaooa-cpp-game/releases/latest).
+
 Download `Kaooa.exe` from the project's GitHub Releases (once published), or run the supplied executable. Double-click it to open the graphical game. Windows 10/11 x64 is the target platform. All artwork is drawn by the app, and the C++ runtime is statically linked.
 
 ## Play
@@ -13,6 +15,8 @@ Seven teal crows try to trap one gold vulture on ten points of a star. Crows pla
 The vulture jumps over an adjacent crow onto the next empty point in a straight line. This edition requires a capture when one is available and permits one jump per turn. Crows cannot jump. The vulture wins after four captures; crows win when it has no legal move. Repeating the same position with the same player to move three times is a draw. A player with no move also triggers a draw unless the vulture is trapped.
 
 Modes: play crows against the computer, play the vulture against the computer, or pass and play with another person. Change mode starts a fresh match. Undo rolls back your turn and the computer response when appropriate. Toggle hints to show available destinations. H opens or closes the rules; Escape closes them.
+
+Click **AI: strategic** to switch to **AI: easy** and back. Easy selects a random legal move. Strategic searches ahead with minimax. Difficulty can change mid-match. It is a session preference; the saved match restores board, mode, and move history while keeping the current difficulty setting.
 
 ## Build
 
