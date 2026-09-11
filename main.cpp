@@ -175,7 +175,55 @@ LRESULT CALLBACK proc(HWND h,UINT msg,WPARAM wp,LPARAM lp){
     case WM_LBUTTONDOWN:click((GET_X_LPARAM(lp)-ox)/scale,(GET_Y_LPARAM(lp)-oy)/scale);return 0;
     case WM_MOUSEMOVE:{float x=(GET_X_LPARAM(lp)-ox)/scale,y=(GET_Y_LPARAM(lp)-oy)/scale;int next=-1;for(auto b:buttons)if(b.rect.Contains(x,y))next=b.id;if(hover!=next){hover=next;refresh();}SetCursor(LoadCursor(nullptr,next>=0?IDC_HAND:IDC_ARROW));return 0;}
     case WM_TIMER:if(wp==1){KillTimer(h,1);if(rules)return 0;if(aiTurn()){auto ms=game.moves(state);auto m=strategic?game.choose(state):ms[aiRandom()%ms.size()];play(m);}thinking=false;}return 0;
-    case WM_KEYDOWN:if(wp==VK_ESCAPE){rules=false;schedule();refresh();}if(wp=='H'){rules=!rules;if(!rules)schedule();refresh();}return 0;
+    case WM_KEYDOWN: {
+        // Bit 30 is set for repeats while a key remains held down.
+        if (lp & (1LL << 30))
+            return 0;
+
+        if (wp == VK_ESCAPE) {
+            rules = false;
+            schedule();
+            refresh();
+            return 0;
+        }
+
+        if (wp == 'H') {
+            rules = !rules;
+            if (!rules)
+                schedule();
+            refresh();
+            return 0;
+        }
+
+        // Avoid changing the match while the help overlay is open.
+        if (rules)
+            return 0;
+
+        switch (wp) {
+        case 'N':
+            reset();
+            break;
+        case 'S':
+            saveMatch();
+            break;
+        case 'L':
+            loadMatch();
+            break;
+        case 'M':
+            mode = (mode + 1) % 3;
+            reset();
+            break;
+        case 'T':
+            hints = !hints;
+            note = hints
+                ? L"Move hints enabled."
+                : L"Move hints disabled.";
+            break;
+        }
+
+        refresh();
+        return 0;
+    }
     case WM_DESTROY:KillTimer(h,1);PostQuitMessage(0);return 0;
     }return DefWindowProc(h,msg,wp,lp);
 }
