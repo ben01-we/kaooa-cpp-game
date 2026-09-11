@@ -6,7 +6,10 @@
 #include <fstream>
 #include <random>
 #include <stdexcept>
+#include <filesystem>
+#include <sstream>
 #include "game.h"
+#include "save.h"
 using namespace Gdiplus;
 using namespace kaooa;
 namespace {
@@ -89,10 +92,12 @@ void draw(Graphics& g) {
     text(g,L"CROWS CAPTURED",730,411,177,20,10,muted,true);
     text(g,std::to_wstring(state.captured)+L" / 4",920,402,99,36,25,gold,true);
     for(int i=0;i<4;++i) circle(g,741.f+i*22,445,5,i<state.captured?gold:Color(255,48,68,66));
-    button(g,RectF(730,485,286,44),L"New game",2,true);
-    button(g,RectF(730,541,136,41),L"Undo",3);
-    button(g,RectF(878,541,138,41),hints?L"Hints: on":L"Hints: off",4);
-    button(g,RectF(730,594,286,41),L"How to play & history",5);
+    button(g,RectF(730,475,286,42),L"New game",2,true);
+    button(g,RectF(730,527,136,36),L"Save game",8);
+    button(g,RectF(878,527,138,36),L"Load game",9);
+    button(g,RectF(730,573,136,36),L"Undo",3);
+    button(g,RectF(878,573,138,36),hints?L"Hints: on":L"Hints: off",4);
+    button(g,RectF(730,619,286,36),L"How to play & history",5);
     if(rules){
         SolidBrush shade(Color(225,7,17,19));g.FillRectangle(&shade,0,0,1080,720);
         round(g,RectF(190,55,700,608),20,panel,Color(255,97,100,76));
@@ -111,6 +116,18 @@ void draw(Graphics& g) {
 void refresh(){InvalidateRect(window,nullptr,FALSE);}
 void schedule(){thinking=aiTurn();if(thinking)SetTimer(window,1,450,nullptr);}
 void reset(){KillTimer(window,1);state={};history.clear();selected=-1;note=L"Choose an empty point to place a crow.";schedule();refresh();}
+std::filesystem::path savePath(){wchar_t path[32768];GetModuleFileName(nullptr,path,32768);return std::filesystem::path(path).parent_path()/L"Kaooa-save.txt";}
+void saveMatch(){
+    auto path=savePath(),temporary=path;temporary+=L".tmp";
+    std::ofstream out(temporary);bool ok=writeSave(out,state,history,mode);out.close();ok=ok&&!out.fail();
+    if(ok)ok=MoveFileEx(temporary.c_str(),path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0;
+    note=ok?L"Saved beside the executable. Load it whenever you return.":L"Could not save. Move the game to a writable folder and try again.";
+}
+void loadMatch(){
+    std::ifstream in(savePath());State restored;std::vector<State> past;int restoredMode;
+    if(!readSave(in,game,restored,past,restoredMode)){note=L"No valid saved game found. Your current game is unchanged.";return;}
+    KillTimer(window,1);state=restored;history=past;mode=restoredMode;selected=-1;note=L"Saved game restored, including undo history.";schedule();
+}
 void play(Move m){
     history.push_back(state);state=game.apply(state,m);selected=-1;
     int repeats=1;for(const auto& s:history)if(game.key(s)==game.key(state))++repeats;
@@ -133,6 +150,8 @@ void click(float x,float y){
         if(id==4)hints=!hints;
         if(id==5)rules=true;
         if(id==6){rules=false;schedule();}
+        if(id==8)saveMatch();
+        if(id==9)loadMatch();
         refresh();return;
     }
     if(rules || aiTurn() || state.winner)return;
@@ -172,7 +191,11 @@ int tests(){
         std::mt19937 random(42);int turns=0;
         for(int run=0;run<500;++run){s={};for(int n=0;n<180 && !s.winner;++n){ms=game.moves(s);require(!ms.empty(),"ongoing game has moves");auto m=ms[random()%ms.size()];require(!s.board[m.to],"destination empty");s=game.apply(s,m);int c=0,v=0;for(int b:s.board){c+=b==1;v+=b==2;}require(c+s.captured==s.placed && s.placed<=7 && v<=1,"piece conservation");++turns;}}
         s={};for(int n=0;n<70 && !s.winner;++n){Move m=game.choose(s);ms=game.moves(s);require(std::any_of(ms.begin(),ms.end(),[&](Move x){return x.from==m.from&&x.to==m.to&&x.over==m.over;}),"AI move legal");s=game.apply(s,m);}
-        report<<"PASS: geometry, placement, mandatory capture, capture victory, trapping victory, piece conservation, AI legality.\n500 seeded games; "<<turns<<" simulated turns.\n";return 0;
+        State current;std::vector<State> past;for(int i=0;i<8 && !current.winner;++i){past.push_back(current);current=game.apply(current,game.moves(current).front());}
+        std::stringstream saved;require(writeSave(saved,current,past,2),"save writes");State loaded;std::vector<State> loadedPast;int loadedMode=-1;
+        require(readSave(saved,game,loaded,loadedPast,loadedMode) && game.key(loaded)==game.key(current) && loadedPast.size()==past.size() && loadedMode==2,"save round trip");
+        std::stringstream bad("KAOOA_SAVE_1 0 1\n1 0 0 0 2 0 0 0 0 0 0 0 0 0\n");require(!readSave(bad,game,loaded,loadedPast,loadedMode),"reject impossible saves");
+        report<<"PASS: geometry, placement, mandatory capture, capture victory, trapping victory, piece conservation, AI legality, save round trip, invalid save rejection.\n500 seeded games; "<<turns<<" simulated turns.\n";return 0;
     }catch(const std::exception& e){report<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
 void snapshot(bool help){

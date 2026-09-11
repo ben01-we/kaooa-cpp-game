@@ -27,6 +27,8 @@ cmake --build build --config Release
 
 ## Implementation
 
+Save game writes `Kaooa-save.txt` beside the executable. Load game restores the match and undo history. Keep the executable in a writable folder. Invalid or incompatible files are rejected without changing the current game.
+
 - `game.h`: board geometry, legal move generation, state transitions, wins, and minimax with alpha-beta pruning.
 - `main.cpp`: Win32 window events, GDI+ 2D rendering, interactions, computer turn scheduling, and verification.
 - `build.bat` and `CMakeLists.txt`: reproducible native builds.
