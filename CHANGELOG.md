@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.0
+
+- Save and resume a complete match, including mode and undo history.
+- Validate every saved transition against legal moves before loading.
+- Preserve the existing game when a save file is missing or invalid.
+- Add save round-trip and invalid-file tests.
+
 ## v1.0.0
 
 - Native C++17 2D board with mouse controls and resizable layout.
