@@ -98,12 +98,32 @@ public:
         }
         return best;
     }
-    Move choose(const State& s) const {
-        auto ms=moves(s); Move best=ms.front();int score=s.turn==2?-20001:20001;
-        for(auto m:ms) {
-            int val=search(apply(s,m),4,-20000,20000);
-            if((s.turn==2 && val>score)||(s.turn==1 && val<score)) {score=val;best=m;}
+    Move choose(const State& s, int depth = 4) const {
+        auto options = moves(s);
+
+        // Return an invalid-move sentinel if the game has no legal moves.
+        // Callers must not pass this sentinel into apply().
+        if (options.empty())
+            return {-1, -1, -1};
+
+        depth = std::clamp(depth, 1, 5);
+        Move best = options.front();
+        int bestScore = s.turn == 2 ? -20001 : 20001;
+
+        for (const Move& candidate : options) {
+            State next = apply(s, candidate);
+            int score = search(next, depth, -20000, 20000);
+
+            bool improves =
+                (s.turn == 2 && score > bestScore) ||
+                (s.turn == 1 && score < bestScore);
+
+            if (improves) {
+                bestScore = score;
+                best = candidate;
+            }
         }
+
         return best;
     }
 };

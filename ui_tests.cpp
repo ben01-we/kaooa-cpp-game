@@ -37,8 +37,34 @@ int main(){
         key('T', held); require(!hints, "held T does not repeat");
         key('T'); require(hints, "T turns hints on");
         key('M'); require(mode == 1 && state.placed == 0 && history.empty(), "M changes mode and resets");
+        // Configurable computer search depth.
+        State searchState;
+        searchState = game.apply(searchState, {-1, 0});
+        const auto legal = game.moves(searchState);
+
+        for (int depth : {1, 3, 5}) {
+            Move answer = game.choose(searchState, depth);
+            bool found = std::any_of(
+                legal.begin(), legal.end(),
+                [&](const Move& candidate) {
+                    return candidate.from == answer.from &&
+                           candidate.to == answer.to &&
+                           candidate.over == answer.over;
+                }
+            );
+            require(found, "configurable search returns a legal move");
+        }
+
+        State completed;
+        completed.winner = 1;
+        Move none = game.choose(completed, 3);
+        require(none.from == -1 && none.to == -1,
+                "completed game returns no-move sentinel");
+
         report<<"PASS: mouse placement, computer response, undo pair, difficulty switch, rules open/close, human vulture mode, computer crows, local mode, hints, new game.\n";
         report<<"PASS: keyboard H/Escape, blocked shortcuts while rules open, S/L save and load, N new game, T hints with held-key repeat ignored, M mode change.\n";
+        report << "PASS: search depths 1, 3 and 5 return legal moves; "
+                  "completed games return the no-move sentinel.\n";
     }catch(const std::exception& e){report<<"FAIL: "<<e.what()<<'\n';DestroyWindow(window);GdiplusShutdown(token);return 1;}
     DestroyWindow(window);GdiplusShutdown(token);return 0;
 }
