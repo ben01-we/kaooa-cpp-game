@@ -1,6 +1,6 @@
 # Kaooa — Vulture and Crows
 
-A native Windows C++17 adaptation of the traditional Indian hunt game Kaooa, built for a GitHub version-control lab. No Python, browser runtime, downloaded assets, or third-party game engine is used in the game.
+An adaptation of the traditional Indian hunt game Kaooa, built for a GitHub version-control lab, in two editions: a native Windows C++17 desktop game and a browser edition (see [Web edition](#web-edition)). The desktop game uses no Python, browser runtime, downloaded assets, or third-party game engine.
 
 ## Run
 
@@ -72,3 +72,49 @@ Click the game window to focus it before using shortcuts.
 While instructions are open, only H and Escape are active.
 Holding a key does not repeatedly trigger its shortcut.
 N and M reset the current match; save first if you want to keep it.
+
+## Web edition
+
+A browser version of the game lives in `web/`. It uses the same rules, point numbering and computer opponent as the desktop game: `web/game.js` is a JavaScript port of `game.h`.
+
+### Run it
+
+From the project folder, start a local web server:
+
+```text
+python -m http.server 8000
+```
+
+Then open <http://localhost:8000/web/>. Stop the server with Ctrl+C. Double-clicking `index.html` does not work, because browsers block JavaScript modules on `file://` pages.
+
+### Test the rules
+
+```text
+node --test web/game.test.js
+```
+
+Requires Node.js 18 or newer; there are no packages to install. The tests cover board geometry, placement, movement, compulsory straight-line captures, both win conditions, repetition draws, rejection of invalid moves, 500 seeded random games, computer move legality and saved-game validation.
+
+### Files
+
+- `web/game.js`: board geometry, legal moves, captures, wins, repetition draws, minimax computer and saved-game validation. No browser code.
+- `web/game.test.js`: automated rules tests using Node's built-in test runner.
+- `web/index.html`, `web/style.css`, `web/app.js`: SVG board, click and tap handling, selection, legal-move highlighting, controls, keyboard shortcuts and the phone layout. All moves go through `game.js`.
+- `web/package.json`: marks the folder as JavaScript modules for Node; `npm test` inside `web/` runs the tests.
+
+### Desktop and web editions compared
+
+| Feature | Desktop (C++) | Web |
+| --- | --- | --- |
+| Rules, board and computer opponent | `game.h` | `web/game.js`, same behaviour |
+| Modes | Crows or vulture against the computer, two players | Same |
+| Computer difficulty | Easy or strategic | Same |
+| Undo, move hints, rules screen | Yes | Yes |
+| Save and load | `Kaooa-save.txt` beside the executable | Browser storage (this browser only) |
+| Input | Mouse and keyboard | Mouse, touch and keyboard (Tab to a point, Enter to choose) |
+| Keyboard shortcuts | N, S, L, M, T, H, Escape | Same, plus U to undo |
+| Screen sizes | Resizable Windows window | Desktop, tablet and phone |
+| Requirements | Windows 10/11 x64 | A modern browser, served over HTTP |
+| Automated tests | `Kaooa.exe --test`, `test.bat` | `node --test web/game.test.js` |
+
+The web edition is not hosted online. A ZIP of `web/` in a release is a download that must be served locally as above.
