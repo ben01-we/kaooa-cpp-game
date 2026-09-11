@@ -1,0 +1,9 @@
+{
+  "name": "kaooa-web",
+  "private": true,
+  "type": "module",
+  "description": "Browser edition of Kaooa (Vulture and Crows).",
+  "scripts": {
+    "test": "node --test game.test.js"
+  }
+}
