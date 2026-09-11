@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.1
+
+- Fix live-window rendering on Windows displays with scaling above 100 percent.
+- Draw the back buffer into an explicit pixel rectangle so graphics and mouse targets align.
+- Verify the fix in the running desktop application.
+
 ## v1.2.0
 
 - Select Easy (random legal moves) or Strategic (five-ply minimax) computer play.

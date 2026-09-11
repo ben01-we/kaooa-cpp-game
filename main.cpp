@@ -57,7 +57,7 @@ void draw(Graphics& g) {
     text(g,L"KAOOA",37,49,510,67,49,cream,true,L"Georgia");
     text(g,L"V U L T U R E   &   C R O W S",41,113,590,28,12,muted);
     text(g,L"A traditional Indian game of pursuit and patience.",40,684,670,26,12,muted);
-    text(g,L"C++  /  DESKTOP  /  v1.2.0",790,686,275,22,10,gold,true);
+    text(g,L"C++  /  DESKTOP  /  v1.2.1",790,686,275,22,10,gold,true);
     // Restrained concentric engraving and a five-point star on a dark stone board.
     Pen ring(Color(255,36,54,54),1);
     for(int r=220;r<=286;r+=22) g.DrawEllipse(&ring,362.f-r,384.f-r,r*2.f,r*2.f);
@@ -171,7 +171,7 @@ LRESULT CALLBACK proc(HWND h,UINT msg,WPARAM wp,LPARAM lp){
     case WM_ERASEBKGND:return 1;
     case WM_GETMINMAXINFO:{auto p=reinterpret_cast<MINMAXINFO*>(lp);p->ptMinTrackSize={820,580};return 0;}
     case WM_SIZE:refresh();return 0;
-    case WM_PAINT:{PAINTSTRUCT ps;HDC dc=BeginPaint(h,&ps);RECT r;GetClientRect(h,&r);int w=r.right,ht=r.bottom;if(w>0 && ht>0){Bitmap bmp(w,ht,PixelFormat32bppARGB);Graphics g(&bmp);g.Clear(bg);scale=std::min(w/1080.f,ht/720.f);ox=(w-1080*scale)/2;oy=(ht-720*scale)/2;g.TranslateTransform(ox,oy);g.ScaleTransform(scale,scale);draw(g);Graphics out(dc);out.DrawImage(&bmp,0,0);}EndPaint(h,&ps);return 0;}
+    case WM_PAINT:{PAINTSTRUCT ps;HDC dc=BeginPaint(h,&ps);RECT r;GetClientRect(h,&r);int w=r.right,ht=r.bottom;if(w>0 && ht>0){Bitmap bmp(w,ht,PixelFormat32bppARGB);Graphics g(&bmp);g.Clear(bg);scale=std::min(w/1080.f,ht/720.f);ox=(w-1080*scale)/2;oy=(ht-720*scale)/2;g.TranslateTransform(ox,oy);g.ScaleTransform(scale,scale);draw(g);Graphics out(dc);out.SetPageUnit(UnitPixel);out.DrawImage(&bmp,Rect(0,0,w,ht),0,0,w,ht,UnitPixel);}EndPaint(h,&ps);return 0;}
     case WM_LBUTTONDOWN:click((GET_X_LPARAM(lp)-ox)/scale,(GET_Y_LPARAM(lp)-oy)/scale);return 0;
     case WM_MOUSEMOVE:{float x=(GET_X_LPARAM(lp)-ox)/scale,y=(GET_Y_LPARAM(lp)-oy)/scale;int next=-1;for(auto b:buttons)if(b.rect.Contains(x,y))next=b.id;if(hover!=next){hover=next;refresh();}SetCursor(LoadCursor(nullptr,next>=0?IDC_HAND:IDC_ARROW));return 0;}
     case WM_TIMER:if(wp==1){KillTimer(h,1);if(rules)return 0;if(aiTurn()){auto ms=game.moves(state);auto m=strategic?game.choose(state):ms[aiRandom()%ms.size()];play(m);}thinking=false;}return 0;
