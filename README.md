@@ -4,7 +4,7 @@ An adaptation of the traditional Indian hunt game Kaooa, built for a GitHub vers
 
 ## Run
 
-Latest release: **v1.2.1**. Repository: [ben01-we/kaooa-cpp-game](https://github.com/ben01-we/kaooa-cpp-game). [Download the latest executable](https://github.com/ben01-we/kaooa-cpp-game/releases/latest).
+Latest release: **release-2** (desktop build v1.3.0, plus the web edition). Repository: [ben01-we/kaooa-cpp-game](https://github.com/ben01-we/kaooa-cpp-game). [Download the latest executable](https://github.com/ben01-we/kaooa-cpp-game/releases/latest).
 
 Download `Kaooa.exe` from the project's GitHub Releases (once published), or run the supplied executable. Double-click it to open the graphical game. Windows 10/11 x64 is the target platform. All artwork is drawn by the app, and the C++ runtime is statically linked.
 
